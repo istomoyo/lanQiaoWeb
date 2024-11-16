@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="./lib/vue.global.js"></script>
+    <link rel="stylesheet" href="./css/style.css" />
+    <title>需求管理</title>
+  </head>
+  <body>
+    <div id="app" v-cloak>
+      <header>
+        <stats :items="items"></stats>
+        <filter-group @filter-group="filterGroup"></filter-group>
+      </header>
+      <!-- TODO：待修改代码 目标 1  -->
+      <demand-list
+        @update-child="updateChild"
+        @update-parent="updateParent"
+        @toggle-item="toggleItem"
+        :items="items"
+      ></demand-list>
+    </div>
+    <script src="./components/DemandList.js"></script>
+    <script src="./components/FilterGroup.js"></script>
+    <script src="./components/Stats.js"></script>
+    <script>
+      const { createApp, ref, computed, onMounted, watch } = Vue;
+      let app = createApp({
+        setup() {
+          const MockUrl = `./mock/data.json`;
+          const items = ref([]);
+          let itemsAll;
+          onMounted(async () => {
+            // TODO：待修改代码目标 1
+            await fetch(MockUrl)
+              .then((response) => {
+                return response.json();
+              })
+              .then((data) => {
+                items.value = data;
+                itemsAll = JSON.parse(JSON.stringify([...items.value]));
+              });
+          });
+
+          // TODO：待补充代码 目标 4
+          const filterGroup = (arr) => {
+
+            items.value = itemsAll.filter((e) => arr.includes(e.type));
+          };
+          // TODO：END
+
+          const toggleItem = (item) => {
+            item.expanded = !item.expanded;
+          };
+
+          // 目标 2 点击完成的逻辑
+          // 点击子项目
+          const updateChild = (parent) => {
+            // TODO：待补充代码 目标 2
+            if (parent.children.every((p) => p.completed === true)) {
+              parent.completed = true;
+            } else {
+              parent.completed = false;
+            }
+          };
+          // 点击父项目
+          const updateParent = (item) => {
+            item.children?.forEach((p) => {
+              p.completed = item.completed;
+            });
+          };
+          // 目标 2 END
+
+          return {
+            toggleItem,
+            updateChild,
+            updateParent,
+            items,
+            filterGroup,
+          };
+        },
+      });
+      app.component("demand-list", DemandList);
+      app.component("filter-group", FilterGroup);
+      app.component("stats", Stats);
+      let vm = app.mount("#app");
+    </script>
+  </body>
+</html>
