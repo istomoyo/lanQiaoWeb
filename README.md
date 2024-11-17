@@ -4,7 +4,5 @@
 
 ### 想拿个奖:(
 
-
-
-<img src="https://pic.re/image">
+<img src="https://api.gumengya.com/Api/DmImg?format=image">
 
